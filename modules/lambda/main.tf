@@ -3,6 +3,8 @@ variable "function_name"       { type = string }
 variable "source_file"         { type = string } 
 variable "dynamodb_table_arn"  { type = string } 
 variable "dynamodb_table_name" { type = string } 
+variable "log_bucket_name"     { type = string }
+variable "log_bucket_arn"      { type = string }
  
 # Автоматична генерація ZIP-архіву з вихідного коду Python 
 data "archive_file" "lambda_zip" { 
@@ -31,18 +33,26 @@ resource "aws_iam_role_policy_attachment" "lambda_logs" {
 } 
  
 # Створення гранулярної кастомної політики доступу до DynamoDB 
-resource "aws_iam_role_policy" "dynamodb_access" { 
-  name = "dynamodb_access_policy" 
-  role = aws_iam_role.lambda_exec.id 
-  policy = jsonencode({ 
-    Version = "2012-10-17" 
-    Statement = [{ 
-      Effect = "Allow" 
-      Action   = ["dynamodb:*"] 
-      Resource = var.dynamodb_table_arn 
-    }] 
-  }) 
-} 
+resource "aws_iam_role_policy" "lambda_access" {
+  name = "lambda_access_policy"
+  role = aws_iam_role.lambda_exec.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["dynamodb:GetItem", "dynamodb:UpdateItem"]
+        Resource = var.dynamodb_table_arn
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["s3:PutObject"]
+        Resource = "${var.log_bucket_arn}/logs/*"
+      }
+    ]
+  })
+}
  
 # Конфігурація середовища виконання AWS Lambda 
 resource "aws_lambda_function" "api_handler" { 
@@ -56,6 +66,7 @@ resource "aws_lambda_function" "api_handler" {
   environment { 
     variables = { 
       TABLE_NAME = var.dynamodb_table_name 
+      LOG_BUCKET  = var.log_bucket_name
     } 
   } 
 } 

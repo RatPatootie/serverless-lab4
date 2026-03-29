@@ -19,6 +19,8 @@ module "backend" {
   source_file         = "${path.root}/../../src/app.py"
   dynamodb_table_arn  = module.database.table_arn
   dynamodb_table_name = module.database.table_name
+  log_bucket_name     = module.logs_bucket.bucket_name
+  log_bucket_arn      = module.logs_bucket.bucket_arn 
 }
 
 # Виклик модуля шлюзу API 
@@ -27,6 +29,10 @@ module "api" {
   api_name             = "${local.prefix}-http-api"
   lambda_invoke_arn    = module.backend.invoke_arn
   lambda_function_name = module.backend.function_name
+}
+module "logs_bucket" {
+  source      = "../../modules/s3"
+  bucket_name = "bodruh-petro-01-logs"
 }
 
 # Вивід URL розгорнутого API (використовується у кроці 6) 
