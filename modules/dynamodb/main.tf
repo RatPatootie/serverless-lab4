@@ -7,7 +7,7 @@ variable "table_name" {
 } 
 
 resource "aws_dynamodb_table" "views" {
-  name         = "bodruh-petro-01-views"
+  name         = "paid-account-01-views"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "page_id"
 

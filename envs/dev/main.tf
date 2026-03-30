@@ -4,7 +4,7 @@ provider "aws" {
 }
 locals {
   # ЗАМІНІТЬ НА ВЛАСНИЙ ПРЕФІКС: Прізвище-Імя-Варіант 
-  prefix = "bodruh-petro-01"
+  prefix = "paid-account-01"
 }
 # Виклик модуля бази даних 
 module "database" {
@@ -32,7 +32,7 @@ module "api" {
 }
 module "logs_bucket" {
   source      = "../../modules/s3"
-  bucket_name = "bodruh-petro-01-logs"
+  bucket_name = "paid-account-01-logs"
 }
 
 # Вивід URL розгорнутого API (використовується у кроці 6) 

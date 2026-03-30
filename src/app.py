@@ -3,6 +3,7 @@ import boto3
 import os
 import uuid
 from datetime import datetime
+from decimal import Decimal
 
 TABLE_NAME = os.environ.get("TABLE_NAME")
 LOG_BUCKET = os.environ.get("LOG_BUCKET")
@@ -17,7 +18,7 @@ dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(TABLE_NAME)
 
 s3 = boto3.client("s3")
-comprehend = boto3.client("comprehend")
+comprehend = boto3.client("comprehend", region_name="eu-central-1")
 
 
 def log_request(method, page_id, status_code):
@@ -77,7 +78,10 @@ def handler(event, context):
                     )
 
                     sentiment = ai_response["Sentiment"]
-                    sentiment_score = ai_response["SentimentScore"]
+                    sentiment_score = {
+                        k: Decimal(str(v))
+                        for k, v in ai_response["SentimentScore"].items()
+                    }
 
                     table.update_item(
                         Key={"page_id": page_id},
@@ -95,8 +99,11 @@ def handler(event, context):
                         "body": json.dumps({
                             "page_id": page_id,
                             "sentiment": sentiment,
-                            "score": sentiment_score,
-                        }),
+                            "score": {
+                                k: float(v)
+                                for k, v in sentiment_score.items()
+                        }
+                    }),
                     }
 
                 except Exception as ai_err:
@@ -108,7 +115,7 @@ def handler(event, context):
                         "statusCode": 200,
                         "body": json.dumps({
                             "page_id": page_id,
-                            "message": "AI analysis failed, but request processed",
+                            "message": "AI analysis failed, but request processed.\n Error: " + str(ai_err),
                         }),
                     }
 

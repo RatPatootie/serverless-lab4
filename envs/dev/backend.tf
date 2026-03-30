@@ -9,7 +9,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket  = "tf-state-lab4-bodruh-petro-01" # ВКАЖІТЬ СВІЙ БАКЕТ 
+    bucket  = "tf-state-lab5-paid-account-01" # ВКАЖІТЬ СВІЙ БАКЕТ 
     key     = "envs/dev/terraform.tfstate"
     region  = "eu-central-1"
     encrypt = true
