@@ -49,6 +49,16 @@ resource "aws_iam_role_policy" "lambda_access" {
         Effect   = "Allow"
         Action   = ["s3:PutObject"]
         Resource = "${var.log_bucket_arn}/logs/*"
+      },
+      {
+        Effect   = "Allow"
+        Action   = [
+          "comprehend:DetectSentiment",
+          "comprehend:DetectEntities",
+          "comprehend:DetectKeyPhrases",
+          "comprehend:DetectDominantLanguage"
+        ]
+        Resource = "*"
       }
     ]
   })

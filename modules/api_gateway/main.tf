@@ -31,7 +31,13 @@ resource "aws_apigatewayv2_route" "any_route" {
   route_key = "ANY /{proxy+}" 
   target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}" 
 } 
- 
+
+resource "aws_apigatewayv2_route" "ai_route" { 
+  api_id    = aws_apigatewayv2_api.http_api.id 
+  route_key = "POST /notes/{id}/analyze" 
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}" 
+}
+
 # 5. Надання дозволу API Gateway на виклик функції Lambda 
 resource "aws_lambda_permission" "api_gw" { 
   statement_id  = "AllowExecutionFromAPIGateway" 
